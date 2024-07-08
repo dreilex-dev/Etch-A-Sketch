@@ -1,41 +1,79 @@
 const container = document.querySelector(".container");
-const columns = 16;
-const rows = 16;
-const containerWidth = 400; // Lățimea dorită pentru container (px)
-const containerHeight = 400; // Înălțimea dorită pentru container (px)
+const button = document.getElementById("reset-button");
+const buttonContainer = document.querySelector(".button-container");
 
-function createGrid() {
-    // Calculating dimensions based on container size
-    const squareSize = Math.min(containerWidth / columns, containerHeight / rows);
+let columns = 16;
+let rows = 16;
+const containerWidth = 400; 
+const containerHeight = 400; 
 
-    // Remove existing squares if any
-    container.innerHTML = '';
-
-    // Loop through rows and columns to create divs
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < columns; j++) {
-            const divSquare = document.createElement("div");
-           // divSquare.textContent = i * columns + j + 1; // Numbering squares from 1 to 256
-            divSquare.style.width = squareSize + "px";
-            divSquare.style.height = squareSize + "px";
-            divSquare.style.border = "1px solid black";
-            divSquare.style.boxSizing = "border-box"; // Ensure borders are included in dimensions
-            divSquare.style.position = "absolute";
-            divSquare.style.left = j * squareSize + "px";
-            divSquare.style.top = i * squareSize + "px";
-            
-            container.appendChild(divSquare);
-        }
-    }
-
-    // Set container dimensions
-    container.style.width = containerWidth + 'px';
-    container.style.height = containerHeight + 'px';
-    container.style.position = 'absolute';
-    container.style.left = (window.innerWidth - containerWidth) / 2 + 'px';
-    container.style.top = (window.innerHeight - containerHeight) / 2 + 'px';
+function getRandomColor() {
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  return `rgb(${r},${g},${b})`;
 }
 
-// Call createGrid initially and on window resize
+function darkenColor(color) {
+  const colorMatch = color.match(/\d+/g);
+  const r = Math.max(0, colorMatch[0] - 25);
+  const g = Math.max(0, colorMatch[1] - 25);
+  const b = Math.max(0, colorMatch[2] - 25);
+  return `rgb(${r},${g},${b})`;
+}
+
+function createGrid() {
+
+  const squareSize = Math.min(containerWidth / columns, containerHeight / rows);
+
+
+  container.innerHTML = '';
+
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < columns; j++) {
+      const divSquare = document.createElement("div");
+      divSquare.classList.add("hoveringBox");
+      divSquare.style.width = squareSize + "px";
+      divSquare.style.height = squareSize + "px";
+      divSquare.addEventListener("mouseover", () => {
+        const currentColor = divSquare.style.backgroundColor;
+        if (currentColor) {
+          divSquare.style.backgroundColor = darkenColor(currentColor);
+        } else {
+          divSquare.style.backgroundColor = getRandomColor();
+        }
+      });
+      container.appendChild(divSquare);
+    }
+  }
+
+
+  container.style.width = containerWidth + 'px';
+  container.style.height = containerHeight + 'px';
+  container.style.margin = 'auto';
+}
+
+function resetGrid() {
+  const userRequestSquares = prompt("Please give the number of squares per side (max 100): ");
+  const gridSize = parseInt(userRequestSquares);
+
+  if (!isNaN(gridSize) && gridSize > 0 && gridSize <= 100) {
+    columns = gridSize;
+    rows = gridSize;
+    createGrid();
+  } else {
+    alert("Please enter a number between 1 and 100.");
+  }
+}
+
+
+buttonContainer.style.position = 'absolute';
+buttonContainer.style.top = '10px';
+buttonContainer.style.left = '10px';
+
+
 createGrid();
 window.addEventListener('resize', createGrid);
+
+
+button.addEventListener("click", resetGrid);
